@@ -1,12 +1,12 @@
+import debounce from "lodash.debounce";
 import React, { PointerEventHandler, PureComponent } from "react";
 import ReactDom from "react-dom";
-import debounce from "lodash.debounce";
 
 import {
   EventBus,
-  PDFViewer,
-  PDFLinkService,
   NullL10n,
+  PDFLinkService,
+  PDFViewer,
 } from "pdfjs-dist/legacy/web/pdf_viewer";
 
 import "pdfjs-dist/web/pdf_viewer.css";
@@ -14,33 +14,30 @@ import "../style/pdf_viewer.css";
 
 import "../style/PdfHighlighter.css";
 
+import getAreaAsPng from "../lib/get-area-as-png";
 import getBoundingRect from "../lib/get-bounding-rect";
 import getClientRects from "../lib/get-client-rects";
-import getAreaAsPng from "../lib/get-area-as-png";
 
 import {
   asElement,
-  getPagesFromRange,
-  getPageFromElement,
-  getWindow,
   findOrCreateContainerLayer,
+  getPagesFromRange,
+  getWindow,
   isHTMLElement,
 } from "../lib/pdfjs-dom";
 
-import TipContainer from "./TipContainer";
-import MouseSelection from "./MouseSelection";
-
 import { scaledToViewport, viewportToScaled } from "../lib/coordinates";
 
+import type { PDFDocumentProxy } from "pdfjs-dist";
 import type {
-  Position,
-  ScaledPosition,
   IHighlight,
-  Scaled,
   LTWH,
   LTWHP,
+  Position,
+  Scaled,
+  ScaledPosition,
 } from "../types";
-import type { PDFDocumentProxy } from "pdfjs-dist";
+import { TipContainer } from "./TipContainer";
 
 type T_ViewportHighlight<T_HT> = { position: Position } & T_HT;
 
@@ -178,7 +175,6 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
       new PDFViewer({
         container: this.containerNode!,
         eventBus: this.eventBus,
-        // enhanceTextSelection: true, // deprecated. https://github.com/mozilla/pdf.js/issues/9943#issuecomment-409369485
         textLayerMode: 2,
         removePageBorders: true,
         linkService: this.linkService,
@@ -189,7 +185,6 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
     this.linkService.setViewer(this.viewer);
     this.viewer.setDocument(pdfDocument);
 
-    // debug
     (window as any).PdfViewer = this;
   }
 
@@ -205,7 +200,7 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
     }
 
     return findOrCreateContainerLayer(
-      textLayer.textLayerDiv,
+      textLayer?.div,
       "PdfHighlighter__highlight-layer"
     );
   }
@@ -609,8 +604,6 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
   debouncedScaleValue: () => void = debounce(this.handleScaleValue, 500);
 
   render() {
-    const { onSelectionFinished, enableAreaSelection } = this.props;
-
     return (
       <div onPointerDown={this.onMouseDown}>
         <div
@@ -620,70 +613,6 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
         >
           <div className="pdfViewer" />
           {this.renderTip()}
-          {typeof enableAreaSelection === "function" ? (
-            <MouseSelection
-              onDragStart={() => this.toggleTextSelection(true)}
-              onDragEnd={() => this.toggleTextSelection(false)}
-              onChange={(isVisible) =>
-                this.setState({ isAreaSelectionInProgress: isVisible })
-              }
-              shouldStart={(event) =>
-                enableAreaSelection(event) &&
-                isHTMLElement(event.target) &&
-                Boolean(asElement(event.target).closest(".page"))
-              }
-              onSelection={(startTarget, boundingRect, resetSelection) => {
-                const page = getPageFromElement(startTarget);
-
-                if (!page) {
-                  return;
-                }
-
-                const pageBoundingRect = {
-                  ...boundingRect,
-                  top: boundingRect.top - page.node.offsetTop,
-                  left: boundingRect.left - page.node.offsetLeft,
-                  pageNumber: page.number,
-                };
-
-                const viewportPosition = {
-                  boundingRect: pageBoundingRect,
-                  rects: [],
-                  pageNumber: page.number,
-                };
-
-                const scaledPosition =
-                  this.viewportPositionToScaled(viewportPosition);
-
-                const image = this.screenshot(
-                  pageBoundingRect,
-                  pageBoundingRect.pageNumber
-                );
-
-                this.setTip(
-                  viewportPosition,
-                  onSelectionFinished(
-                    scaledPosition,
-                    { image },
-                    () => this.hideTipAndSelection(),
-                    () =>
-                      this.setState(
-                        {
-                          ghostHighlight: {
-                            position: scaledPosition,
-                            content: { image },
-                          },
-                        },
-                        () => {
-                          resetSelection();
-                          this.renderHighlights();
-                        }
-                      )
-                  )
-                );
-              }}
-            />
-          ) : null}
         </div>
       </div>
     );

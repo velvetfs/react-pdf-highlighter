@@ -1,11 +1,10 @@
-import React, { Component } from "react";
+import React, { useEffect } from "react";
 
-import { getDocument, GlobalWorkerOptions } from "pdfjs-dist/legacy/build/pdf";
 import type { PDFDocumentProxy } from "pdfjs-dist";
+import { getDocument, GlobalWorkerOptions } from "pdfjs-dist/legacy/build/pdf";
 
-interface Props {
-  /** See `GlobalWorkerOptionsType`. */
-  workerSrc: string;
+type PdfLoaderProps = {
+  workerSrc?: string;
 
   url: string;
   beforeLoad: JSX.Element;
@@ -14,104 +13,76 @@ interface Props {
   onError?: (error: Error) => void;
   cMapUrl?: string;
   cMapPacked?: boolean;
-}
+};
 
-interface State {
-  pdfDocument: PDFDocumentProxy | null;
-  error: Error | null;
-}
+export const PdfLoader = ({
+  workerSrc = "https://unpkg.com/pdfjs-dist@3.3.122/build/pdf.worker.min.js",
+  url,
+  beforeLoad,
+  children,
+  cMapUrl,
+  cMapPacked,
+  onError,
+  ...props
+}: PdfLoaderProps) => {
+  const [pdfDocument, setPdfDocument] = React.useState<PDFDocumentProxy | null>(
+    null
+  );
+  const [error, setError] = React.useState<Error | null>(null);
+  const documentRef = React.useRef<HTMLElement>(null);
 
-export class PdfLoader extends Component<Props, State> {
-  state: State = {
-    pdfDocument: null,
-    error: null,
-  };
-
-  static defaultProps = {
-    workerSrc: "https://unpkg.com/pdfjs-dist@2.16.105/build/pdf.worker.min.js",
-  };
-
-  documentRef = React.createRef<HTMLElement>();
-
-  componentDidMount() {
-    this.load();
-  }
-
-  componentWillUnmount() {
-    const { pdfDocument: discardedDocument } = this.state;
-    if (discardedDocument) {
-      discardedDocument.destroy();
-    }
-  }
-
-  componentDidUpdate({ url }: Props) {
-    if (this.props.url !== url) {
-      this.load();
-    }
-  }
-
-  componentDidCatch(error: Error, info?: any) {
-    const { onError } = this.props;
-
-    if (onError) {
-      onError(error);
-    }
-
-    this.setState({ pdfDocument: null, error });
-  }
-
-  load() {
-    const { ownerDocument = document } = this.documentRef.current || {};
-    const { url, cMapUrl, cMapPacked, workerSrc } = this.props;
-    const { pdfDocument: discardedDocument } = this.state;
-    this.setState({ pdfDocument: null, error: null });
+  useEffect(() => {
+    setPdfDocument(null);
+    setError(null);
 
     if (typeof workerSrc === "string") {
       GlobalWorkerOptions.workerSrc = workerSrc;
     }
 
     Promise.resolve()
-      .then(() => discardedDocument && discardedDocument.destroy())
+      .then(() => pdfDocument && pdfDocument.destroy())
       .then(() => {
         if (!url) {
           return;
         }
-
         return getDocument({
-          ...this.props,
-          ownerDocument,
+          url,
           cMapUrl,
           cMapPacked,
-        }).promise.then((pdfDocument) => {
-          this.setState({ pdfDocument });
-        });
+          ...props,
+        })
+          .promise.then((pdfDocument) => {
+            setPdfDocument(pdfDocument);
+          })
+          .catch((e) => {
+            setError(e);
+          });
       })
-      .catch((e) => this.componentDidCatch(e));
-  }
+      .catch((e) => setError(e));
+    return () => {
+      if (pdfDocument) {
+        pdfDocument.destroy();
+      }
+    };
+  }, [url]);
 
-  render() {
-    const { children, beforeLoad } = this.props;
-    const { pdfDocument, error } = this.state;
-    return (
-      <>
-        <span ref={this.documentRef} />
-        {error
-          ? this.renderError()
-          : !pdfDocument || !children
-          ? beforeLoad
-          : children(pdfDocument)}
-      </>
-    );
-  }
-
-  renderError() {
-    const { errorMessage } = this.props;
-    if (errorMessage) {
-      return React.cloneElement(errorMessage, { error: this.state.error });
+  const renderDocument = () => {
+    if (error === null && pdfDocument === null) {
+      return beforeLoad;
+    } else if (error) {
+      console.log(error.message);
+      return <div style={{ color: "black" }}>{error.message}</div>;
+    } else if (pdfDocument !== null && pdfDocument !== undefined) {
+      return children(pdfDocument);
+    } else {
+      return null;
     }
+  };
 
-    return null;
-  }
-}
-
-export default PdfLoader;
+  return (
+    <>
+      <span ref={documentRef} />
+      {renderDocument()}
+    </>
+  );
+};

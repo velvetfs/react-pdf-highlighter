@@ -1,19 +1,17 @@
 import React, { Component } from "react";
 
 import {
-  PdfLoader,
-  PdfHighlighter,
-  Tip,
-  Highlight,
-  Popup,
   AreaHighlight,
+  PdfHighlighter,
+  PdfLoader,
+  Popup,
 } from "./react-pdf-highlighter";
 
 import type { IHighlight, NewHighlight } from "./react-pdf-highlighter";
 
-import { testHighlights as _testHighlights } from "./test-highlights";
-import { Spinner } from "./Spinner";
 import { Sidebar } from "./Sidebar";
+import { Spinner } from "./Spinner";
+import { testHighlights as _testHighlights } from "./test-highlights";
 
 import "./style/App.css";
 
@@ -161,21 +159,6 @@ class App extends Component<{}, State> {
 
                   this.scrollToHighlightFromHash();
                 }}
-                onSelectionFinished={(
-                  position,
-                  content,
-                  hideTipAndSelection,
-                  transformSelection
-                ) => (
-                  <Tip
-                    onOpen={transformSelection}
-                    onConfirm={(comment) => {
-                      this.addHighlight({ content, position, comment });
-
-                      hideTipAndSelection();
-                    }}
-                  />
-                )}
                 highlightTransform={(
                   highlight,
                   index,
@@ -189,13 +172,7 @@ class App extends Component<{}, State> {
                     highlight.content && highlight.content.image
                   );
 
-                  const component = isTextHighlight ? (
-                    <Highlight
-                      isScrolledTo={isScrolledTo}
-                      position={highlight.position}
-                      comment={highlight.comment}
-                    />
-                  ) : (
+                  const component = (
                     <AreaHighlight
                       isScrolledTo={isScrolledTo}
                       highlight={highlight}

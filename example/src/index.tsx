@@ -1,5 +1,11 @@
 import React from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import App from "./App";
 
-ReactDOM.render(<App />, document.getElementById("root"));
+let root = document?.getElementById("root");
+if (!root) {
+  root = document.createElement("div");
+  root.id = "root";
+  document.body.appendChild(root);
+}
+createRoot(root).render(<App />);

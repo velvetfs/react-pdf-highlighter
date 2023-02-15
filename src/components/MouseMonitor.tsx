@@ -1,33 +1,33 @@
-import React, { Component } from "react";
+import React, { useEffect, useRef } from "react";
 
-interface Props {
+type MouseMonitorProps = {
   onMoveAway: () => void;
   paddingX: number;
   paddingY: number;
   children: JSX.Element;
-}
+};
 
-class MouseMonitor extends Component<Props> {
-  container: HTMLDivElement | null = null;
-  unsubscribe = () => {};
+export const MouseMonitor = ({
+  onMoveAway,
+  paddingX,
+  paddingY,
+  children,
+}: MouseMonitorProps) => {
+  const container = useRef<HTMLDivElement>(null);
 
-  onMouseMove = (event: MouseEvent) => {
-    if (!this.container) {
-      return;
-    }
+  const onMouseMove = (event: MouseEvent) => {
+    if (!container) return;
 
-    const { onMoveAway, paddingX, paddingY } = this.props;
+    let current = container.current;
+
+    if (!current) return;
 
     const { clientX, clientY } = event;
-
-    // TODO: see if possible to optimize
-    const { left, top, width, height } = this.container.getBoundingClientRect();
-
+    const { left, top, width, height } = current.getBoundingClientRect();
     const inBoundsX =
       clientX > left - paddingX && clientX < left + width + paddingX;
     const inBoundsY =
       clientY > top - paddingY && clientY < top + height + paddingY;
-
     const isNear = inBoundsX && inBoundsY;
 
     if (!isNear) {
@@ -35,28 +35,19 @@ class MouseMonitor extends Component<Props> {
     }
   };
 
-  attachRef = (ref: HTMLDivElement | null) => {
-    this.container = ref;
-    this.unsubscribe();
+  useEffect(() => {
+    if (!container.current) return;
+    let current = container.current;
+    const { ownerDocument: doc } = current;
+    doc.addEventListener("mousemove", onMouseMove);
+    return () => {
+      doc.removeEventListener("mousemove", onMouseMove);
+    };
+  }, [container]);
 
-    if (ref) {
-      const { ownerDocument: doc } = ref;
-      doc.addEventListener("mousemove", this.onMouseMove);
-      this.unsubscribe = () => {
-        doc.removeEventListener("mousemove", this.onMouseMove);
-      };
-    }
-  };
-
-  render() {
-    // eslint-disable-next-line
-    const { onMoveAway, paddingX, paddingY, children, ...restProps } =
-      this.props;
-
-    return (
-      <div ref={this.attachRef}>{React.cloneElement(children, restProps)}</div>
-    );
-  }
-}
-
-export default MouseMonitor;
+  return (
+    <div ref={container}>
+      {React.cloneElement(children, onMoveAway, paddingX, paddingY)}
+    </div>
+  );
+};
