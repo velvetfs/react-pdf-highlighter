@@ -168,10 +168,6 @@ class App extends Component<{}, State> {
                   screenshot,
                   isScrolledTo
                 ) => {
-                  const isTextHighlight = !Boolean(
-                    highlight.content && highlight.content.image
-                  );
-
                   const component = (
                     <AreaHighlight
                       isScrolledTo={isScrolledTo}

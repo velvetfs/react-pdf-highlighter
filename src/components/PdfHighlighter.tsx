@@ -15,13 +15,10 @@ import "../style/pdf_viewer.css";
 import "../style/PdfHighlighter.css";
 
 import getAreaAsPng from "../lib/get-area-as-png";
-import getBoundingRect from "../lib/get-bounding-rect";
-import getClientRects from "../lib/get-client-rects";
 
 import {
   asElement,
   findOrCreateContainerLayer,
-  getPagesFromRange,
   getWindow,
   isHTMLElement,
 } from "../lib/pdfjs-dom";
@@ -76,12 +73,6 @@ interface Props<T_HT> {
   scrollRef: (scrollTo: (highlight: T_HT) => void) => void;
   pdfDocument: PDFDocumentProxy;
   pdfScaleValue: string;
-  onSelectionFinished: (
-    position: ScaledPosition,
-    content: { text?: string; image?: string },
-    hideTipAndSelection: () => void,
-    transformSelection: () => void
-  ) => JSX.Element | null;
   enableAreaSelection: (event: MouseEvent) => boolean;
 }
 
@@ -498,8 +489,6 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
       isCollapsed: false,
       range,
     });
-
-    this.debouncedAfterSelection();
   };
 
   onScroll = () => {
@@ -534,59 +523,6 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
       this.hideTipAndSelection();
     }
   };
-
-  afterSelection = () => {
-    const { onSelectionFinished } = this.props;
-
-    const { isCollapsed, range } = this.state;
-
-    if (!range || isCollapsed) {
-      return;
-    }
-
-    const pages = getPagesFromRange(range);
-
-    if (!pages || pages.length === 0) {
-      return;
-    }
-
-    const rects = getClientRects(range, pages);
-
-    if (rects.length === 0) {
-      return;
-    }
-
-    const boundingRect = getBoundingRect(rects);
-
-    const viewportPosition: Position = {
-      boundingRect,
-      rects,
-      pageNumber: pages[0].number,
-    };
-
-    const content = {
-      text: range.toString(),
-    };
-    const scaledPosition = this.viewportPositionToScaled(viewportPosition);
-
-    this.setTip(
-      viewportPosition,
-      onSelectionFinished(
-        scaledPosition,
-        content,
-        () => this.hideTipAndSelection(),
-        () =>
-          this.setState(
-            {
-              ghostHighlight: { position: scaledPosition },
-            },
-            () => this.renderHighlights()
-          )
-      )
-    );
-  };
-
-  debouncedAfterSelection: () => void = debounce(this.afterSelection, 500);
 
   toggleTextSelection(flag: boolean) {
     this.viewer.viewer!.classList.toggle(
