@@ -21,7 +21,6 @@ export const MouseMonitor = ({
     let current = container.current;
 
     if (!current) return;
-
     const { clientX, clientY } = event;
     const { left, top, width, height } = current.getBoundingClientRect();
     const inBoundsX =
@@ -43,7 +42,7 @@ export const MouseMonitor = ({
     return () => {
       doc.removeEventListener("mousemove", onMouseMove);
     };
-  }, [container]);
+  }, []);
 
   return (
     <div ref={container}>

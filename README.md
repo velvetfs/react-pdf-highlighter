@@ -1,16 +1,9 @@
-☕️ [Buy me a coffee](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=SC4D2NS8G2JJ8&source=url)
+# v-pdf-highlighter
 
-![Node CI](https://github.com/agentcooper/react-pdf-highlighter/workflows/Node%20CI/badge.svg)
-
-## react-pdf-highlighter
-
-`react-pdf-highlighter` is a [React](https://reactjs.org/) library that provides annotation experience for PDF documents on web. It is built on top of PDF.js by Mozilla. Text and rectangular highlights are supported. Highlight
-data format is independent of the viewport, making it suitable for saving on the
-server.
+`v-pdf-highlighter` is a [React](https://reactjs.org/) library that provides a read only annotation experience for PDF documents on web. It is a fork of "react-pdf-highlighter", built on top of PDF.js by Mozilla. Text and rectangular highlights are supported. Highlight
+data format is independent of the viewport, making it suitable for saving on the server.
 
 ### Example
-
-For online example check https://agentcooper.github.io/react-pdf-highlighter/.
 
 To run the example app locally:
 
@@ -19,14 +12,12 @@ npm install
 npm start
 ```
 
-Create React App example is available in [`./create-react-app-example`](https://github.com/agentcooper/react-pdf-highlighter/tree/main/create-react-app-example). Make sure to run `npm install` there as well.
-
 ### Installation
 
-`npm install react-pdf-highlighter`
+`npm install v-pdf-highlighter`
 
 See
-[`./example/src/App.tsx`](https://github.com/agentcooper/react-pdf-highlighter/blob/main/example/src/App.tsx)
+[`./example/src/App.tsx`](https://github.com/velvetfs/v-pdf-highlighter/blob/main/example/src/App.tsx)
 for React component API example.
 
 ### Prior art

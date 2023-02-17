@@ -1,4 +1,11 @@
-import React, { useEffect, useRef } from "react";
+"use client";
+import React, {
+  Children,
+  cloneElement,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
 import type { LTWHP } from "../types";
 
@@ -14,12 +21,12 @@ const clamp = (value: number, left: number, right: number) =>
 
 export const TipContainer = (props: TipContainerProps) => {
   const { children, style, scrollTop, pageBoundingRect } = props;
-  const [height, setHeight] = React.useState<number>(0);
-  const [width, setWidth] = React.useState<number>(0);
+  const [height, setHeight] = useState<number>(0);
+  const [width, setWidth] = useState<number>(0);
   const node = useRef<HTMLDivElement>(null);
 
   const updatePosition = () => {
-    if (!node.current) {
+    if (!node || !node.current) {
       return;
     }
 
@@ -43,9 +50,9 @@ export const TipContainer = (props: TipContainerProps) => {
   const top = shouldMove ? style.bottom + 5 : style.top - height - 5;
   const left = clamp(style.left - width / 2, 0, pageBoundingRect.width - width);
 
-  const childrenWithProps = React.Children.map(children, (child) =>
+  const childrenWithProps = Children.map(children, (child) =>
     // @ts-ignore
-    React.cloneElement(child, {
+    cloneElement(child, {
       onUpdate: () => {
         setHeight(0);
         setWidth(0);

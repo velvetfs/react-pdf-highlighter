@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 
 import "../style/Highlight.css";
@@ -13,7 +14,6 @@ interface Props {
   onMouseOver?: () => void;
   onMouseOut?: () => void;
   comment: {
-    emoji: string;
     text: string;
   };
   isScrolledTo: boolean;
@@ -27,17 +27,6 @@ export const Highlight = (props: Props) => {
 
   return (
     <div className={`Highlight ${isScrolledTo ? "Highlight--scrolledTo" : ""}`}>
-      {comment ? (
-        <div
-          className="Highlight__emoji"
-          style={{
-            left: 20,
-            top: boundingRect.top,
-          }}
-        >
-          {comment.emoji}
-        </div>
-      ) : null}
       <div className="Highlight__parts">
         {rects.map((rect, index) => (
           <div

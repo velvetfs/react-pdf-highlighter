@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 
 import { MouseMonitor } from "./MouseMonitor";
@@ -16,21 +17,17 @@ export const Popup = (props: PopupProps) => {
 
   return (
     <div
+      className="pop-up"
       onMouseOver={() => {
         setMouseIn(true);
-
         onMouseOver(
           <MouseMonitor
             onMoveAway={() => {
-              if (mouseIn) {
-                return;
-              }
-
               onMouseOut();
             }}
-            paddingX={60}
-            paddingY={30}
             children={popupContent}
+            paddingX={200}
+            paddingY={60}
           />
         );
       }}

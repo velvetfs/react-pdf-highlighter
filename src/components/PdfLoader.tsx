@@ -1,3 +1,4 @@
+"use client";
 import React, { useEffect } from "react";
 
 import type { PDFDocumentProxy } from "pdfjs-dist";
@@ -51,10 +52,10 @@ export const PdfLoader = ({
           cMapPacked,
           ...props,
         })
-          .promise.then((pdfDocument) => {
+          .promise.then((pdfDocument: PDFDocumentProxy) => {
             setPdfDocument(pdfDocument);
           })
-          .catch((e) => {
+          .catch((e: Error) => {
             setError(e);
           });
       })

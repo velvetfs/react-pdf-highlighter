@@ -46,7 +46,6 @@ export interface HighlightContent {
 
 export interface Comment {
   text: string;
-  emoji: string;
 }
 
 export interface HighlightComment {
