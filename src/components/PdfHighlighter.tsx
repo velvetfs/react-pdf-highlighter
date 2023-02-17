@@ -301,7 +301,6 @@ export const PdfHighlighter = <T_HT extends IHighlight>({
   };
 
   const hideTip = () => {
-    console.log("hide tip");
     setTipPosition(null);
     setTipChildren(null);
     setTip(null);

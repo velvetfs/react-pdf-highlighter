@@ -42,6 +42,10 @@ export const TipContainer = (props: TipContainerProps) => {
 
   useEffect(() => {
     updatePosition();
+  }, [height, width]);
+
+  useEffect(() => {
+    updatePosition();
   }, [props.children]);
 
   const isStyleCalculationInProgress = width === 0 && height === 0;

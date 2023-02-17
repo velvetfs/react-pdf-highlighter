@@ -20,10 +20,9 @@ interface Props {
 }
 
 export const Highlight = (props: Props) => {
-  const { position, onClick, onMouseOver, onMouseOut, comment, isScrolledTo } =
-    props;
+  const { position, onClick, onMouseOver, onMouseOut, isScrolledTo } = props;
 
-  const { rects, boundingRect } = position;
+  const { rects } = position;
 
   return (
     <div className={`Highlight ${isScrolledTo ? "Highlight--scrolledTo" : ""}`}>

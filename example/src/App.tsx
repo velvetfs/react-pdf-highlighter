@@ -84,8 +84,6 @@ const App = () => {
     position: Object,
     content: Object
   ) => {
-    console.log("Updating highlight", highlightId, position, content);
-
     setHighlights(
       highlights.map((h) => {
         const {

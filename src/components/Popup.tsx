@@ -23,6 +23,10 @@ export const Popup = (props: PopupProps) => {
         onMouseOver(
           <MouseMonitor
             onMoveAway={() => {
+              if (mouseIn) {
+                return;
+              }
+
               onMouseOut();
             }}
             children={popupContent}

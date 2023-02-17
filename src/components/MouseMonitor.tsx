@@ -7,13 +7,9 @@ type MouseMonitorProps = {
   children: JSX.Element;
 };
 
-export const MouseMonitor = ({
-  onMoveAway,
-  paddingX,
-  paddingY,
-  children,
-}: MouseMonitorProps) => {
+export const MouseMonitor = (props: MouseMonitorProps) => {
   const container = useRef<HTMLDivElement>(null);
+  const { onMoveAway, paddingX, paddingY, children, ...restProps } = props;
 
   const onMouseMove = (event: MouseEvent) => {
     if (!container) return;
@@ -42,11 +38,7 @@ export const MouseMonitor = ({
     return () => {
       doc.removeEventListener("mousemove", onMouseMove);
     };
-  }, []);
+  }, [container]);
 
-  return (
-    <div ref={container}>
-      {React.cloneElement(children, onMoveAway, paddingX, paddingY)}
-    </div>
-  );
+  return <div ref={container}>{React.cloneElement(children, restProps)}</div>;
 };
