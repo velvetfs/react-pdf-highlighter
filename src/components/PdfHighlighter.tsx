@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 import {
   EventBus,
@@ -82,7 +82,7 @@ export const PdfHighlighter = <T_HT extends IHighlight>({
     viewer.currentScaleValue = pdfScaleValue;
   };
 
-  const debouncedScaleValue = () => debounce(handleScaleValue, 500);
+  const debouncedScaleValue = useCallback(debounce(handleScaleValue, 500), []);
 
   const resizeObserver = new ResizeObserver(debouncedScaleValue);
 
