@@ -25,12 +25,8 @@ const resetHash = () => {
   document.location.hash = "";
 };
 
-const HighlightPopup = ({
-  comment,
-}: {
-  comment: { text: string; emoji?: string };
-}) =>
-  comment.text ? <div className="Highlight__popup">{comment.text}</div> : null;
+const HighlightPopup = ({ label }: { label: string }) =>
+  label ? <div className="Highlight__popup">{label}</div> : null;
 
 const PRIMARY_PDF_URL = "https://arxiv.org/pdf/1708.08021.pdf";
 const SECONDARY_PDF_URL = "https://arxiv.org/pdf/1604.02480.pdf";
@@ -82,7 +78,8 @@ const App = () => {
   const updateHighlight = (
     highlightId: string,
     position: Object,
-    content: Object
+    content?: string,
+    image?: string
   ) => {
     setHighlights(
       highlights.map((h) => {
@@ -96,7 +93,8 @@ const App = () => {
           ? {
               id,
               position: { ...originalPosition, ...position },
-              content: { ...originalContent, ...content },
+              content: content,
+              image: image,
               ...rest,
             }
           : h;
@@ -137,14 +135,12 @@ const App = () => {
                 screenshot,
                 isScrolledTo
               ) => {
-                const isTextHighlight = !Boolean(
-                  highlight.content && highlight.content.image
-                );
+                const isTextHighlight = !Boolean(highlight.image);
                 const component = isTextHighlight ? (
                   <Highlight
                     isScrolledTo={isScrolledTo}
                     position={highlight.position}
-                    comment={highlight.comment}
+                    label={highlight.label}
                   />
                 ) : (
                   <AreaHighlight
@@ -154,7 +150,8 @@ const App = () => {
                       updateHighlight(
                         highlight.id,
                         { boundingRect: viewportToScaled(boundingRect) },
-                        { image: screenshot(boundingRect) }
+                        highlight?.content,
+                        screenshot(boundingRect)
                       );
                     }}
                   />
@@ -162,9 +159,7 @@ const App = () => {
 
                 return (
                   <Popup
-                    popupContent={
-                      <HighlightPopup comment={highlight.comment} />
-                    }
+                    popupContent={<HighlightPopup label={highlight.label} />}
                     onMouseOver={(popupContent) =>
                       setTip(highlight, (highlight) => popupContent)
                     }

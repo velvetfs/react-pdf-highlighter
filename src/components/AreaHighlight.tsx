@@ -7,7 +7,7 @@ import type { LTWHP, ViewportHighlight } from "../types";
 
 type AreaHighlightProps = {
   highlight: ViewportHighlight;
-  onChange: (rect: LTWHP) => void;
+  onChange?: (rect: LTWHP) => void;
   isScrolledTo: boolean;
 };
 

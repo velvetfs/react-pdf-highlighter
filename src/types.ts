@@ -35,33 +35,22 @@ export interface ScaledPosition {
   usePdfCoordinates?: boolean;
 }
 
-export interface Content {
-  text?: string;
-  image?: string;
-}
-
-export interface HighlightContent {
-  content: Content;
-}
-
-export interface Comment {
-  text: string;
-}
-
-export interface HighlightComment {
-  comment: Comment;
-}
-
-export interface NewHighlight extends HighlightContent, HighlightComment {
+export interface NewHighlight {
   position: ScaledPosition;
+  label: string;
+  content?: string;
+  image?: string;
 }
 
 export interface IHighlight extends NewHighlight {
   id: string;
 }
 
-export interface ViewportHighlight extends HighlightContent, HighlightComment {
+export interface ViewportHighlight {
   position: Position;
+  label: string;
+  content?: string;
+  image?: string;
 }
 
 export interface Viewport {

@@ -45,18 +45,18 @@ export function Sidebar({
             }}
           >
             <div>
-              <strong>{highlight.comment.text}</strong>
-              {highlight.content.text ? (
+              <strong>{highlight.label}</strong>
+              {highlight.content ? (
                 <blockquote style={{ marginTop: "0.5rem" }}>
-                  {`${highlight.content.text.slice(0, 90).trim()}…`}
+                  {`${highlight.content.slice(0, 90).trim()}…`}
                 </blockquote>
               ) : null}
-              {highlight.content.image ? (
+              {highlight.image ? (
                 <div
                   className="highlight__image"
                   style={{ marginTop: "0.5rem" }}
                 >
-                  <img src={highlight.content.image} alt={"Screenshot"} />
+                  <img src={highlight.image} alt={"Screenshot"} />
                 </div>
               ) : null}
             </div>

@@ -13,9 +13,7 @@ interface Props {
   onClick?: () => void;
   onMouseOver?: () => void;
   onMouseOut?: () => void;
-  comment: {
-    text: string;
-  };
+  label: string;
   isScrolledTo: boolean;
 }
 

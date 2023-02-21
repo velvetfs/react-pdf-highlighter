@@ -17,7 +17,6 @@ export const Popup = (props: PopupProps) => {
 
   return (
     <div
-      className="pop-up"
       onMouseOver={() => {
         setMouseIn(true);
         onMouseOver(
@@ -27,16 +26,18 @@ export const Popup = (props: PopupProps) => {
                 return;
               }
 
-              onMouseOut();
+              // onMouseOut();
             }}
-            children={popupContent}
-            paddingX={200}
-            paddingY={60}
-          />
+            paddingX={60}
+            paddingY={30}
+          >
+            {popupContent}
+          </MouseMonitor>
         );
       }}
       onMouseOut={() => {
         setMouseIn(false);
+        onMouseOut();
       }}
     >
       {props.children}

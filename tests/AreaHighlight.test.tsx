@@ -15,8 +15,8 @@ const highlight = {
     rects: [],
     pageNumber: 1,
   },
-  comment: { text: "test" },
-  content: {},
+  label: "test",
+  content: "",
 };
 
 test("should render", () => {

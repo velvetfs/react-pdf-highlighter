@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useRef } from "react";
 
 type MouseMonitorProps = {
   onMoveAway: () => void;
@@ -8,7 +8,9 @@ type MouseMonitorProps = {
 };
 
 export const MouseMonitor = (props: MouseMonitorProps) => {
-  const container = useRef<HTMLDivElement>(null);
+  const container = useRef<HTMLDivElement | null>(null);
+  let unsubscribe = () => {};
+
   const { onMoveAway, paddingX, paddingY, children, ...restProps } = props;
 
   const onMouseMove = (event: MouseEvent) => {
@@ -30,15 +32,21 @@ export const MouseMonitor = (props: MouseMonitorProps) => {
     }
   };
 
-  useEffect(() => {
-    if (!container.current) return;
-    let current = container.current;
-    const { ownerDocument: doc } = current;
-    doc.addEventListener("mousemove", onMouseMove);
-    return () => {
-      doc.removeEventListener("mousemove", onMouseMove);
-    };
-  }, [container]);
+  const attachRef = (ref: HTMLDivElement | null) => {
+    container.current = ref;
+    unsubscribe();
+    if (ref) {
+      const { ownerDocument: doc } = ref;
+      doc.addEventListener("mousemove", onMouseMove);
+      unsubscribe = () => {
+        doc.removeEventListener("mousemove", onMouseMove);
+      };
+    }
+  };
 
-  return <div ref={container}>{React.cloneElement(children, restProps)}</div>;
+  return (
+    <div ref={(ref) => attachRef(ref)}>
+      {React.cloneElement(children, restProps)}
+    </div>
+  );
 };

@@ -74,11 +74,7 @@ export const PdfHighlighter = <T_HT extends IHighlight>({
   const [viewerState, setViewerState] = useState<PDFViewer>();
 
   const [eventBus] = useState<EventBus>(new EventBus());
-  const linkService = new PDFLinkService({
-    eventBus: eventBus,
-    externalLinkTarget: 2,
-  });
-
+  var linkService: PDFLinkService;
   var viewer: PDFViewer;
   var roots: Map<Element, Root> = new Map();
 
@@ -103,8 +99,12 @@ export const PdfHighlighter = <T_HT extends IHighlight>({
         handleScaleValue();
         scrollRef(scrollTo);
       });
-      doc.defaultView?.addEventListener("resize", debouncedScaleValue);
+      doc?.defaultView?.addEventListener("resize", debouncedScaleValue);
       if (resizeObserver) resizeObserver.observe(current);
+      linkService = new PDFLinkService({
+        eventBus: eventBus,
+        externalLinkTarget: 2,
+      });
       viewer = new PDFViewer({
         container: documentRef.current,
         eventBus: eventBus,
@@ -121,7 +121,7 @@ export const PdfHighlighter = <T_HT extends IHighlight>({
         handleScaleValue();
         scrollRef(scrollTo);
       });
-      doc.defaultView?.removeEventListener("resize", debouncedScaleValue);
+      doc?.defaultView?.removeEventListener("resize", debouncedScaleValue);
     };
   }, []);
 
@@ -136,7 +136,7 @@ export const PdfHighlighter = <T_HT extends IHighlight>({
 
   useEffect(() => {
     renderHighlights();
-  }, [scrolledToHighlightId]);
+  }, [tip]);
 
   const groupHighlightsByPage = (highlights: Array<T_HT>) => {
     const allHighlights = highlights.filter(Boolean);
@@ -208,8 +208,29 @@ export const PdfHighlighter = <T_HT extends IHighlight>({
     };
   };
 
-  const renderHighlights = () => {
-    const highlightsByPage = groupHighlightsByPage(highlights);
+  const renderHighlights = (nextProps?: PdfHighlighterProps<T_HT>) => {
+    let hltTrnsf: (
+      highlight: T_ViewportHighlight<T_HT>,
+      index: number,
+      setTip: (
+        highlight: T_ViewportHighlight<T_HT>,
+        callback: (highlight: T_ViewportHighlight<T_HT>) => JSX.Element
+      ) => void,
+      hideTip: () => void,
+      viewportToScaled: (rect: LTWHP) => Scaled,
+      screenshot: (position: LTWH) => string,
+      isScrolledTo: boolean
+    ) => JSX.Element;
+    let hlts: Array<T_HT> = [];
+    if (nextProps) {
+      hltTrnsf = nextProps.highlightTransform;
+      hlts = nextProps.highlights;
+    } else {
+      hltTrnsf = highlightTransform;
+      hlts = highlights;
+    }
+
+    const highlightsByPage = groupHighlightsByPage(hlts);
 
     for (let pageNumber = 1; pageNumber <= pdfDocument.numPages; pageNumber++) {
       const highlightLayer = findOrCreateHighlightLayer(pageNumber);
@@ -236,7 +257,7 @@ export const PdfHighlighter = <T_HT extends IHighlight>({
 
                 const isScrolledTo = Boolean(scrolledToHighlightId === id);
 
-                return highlightTransform(
+                return hltTrnsf(
                   viewportHighlight,
                   index,
                   (highlight, callback) => {
@@ -303,6 +324,7 @@ export const PdfHighlighter = <T_HT extends IHighlight>({
   const hideTip = () => {
     setTipPosition(null);
     setTipChildren(null);
+
     setTip(null);
   };
 
@@ -313,7 +335,7 @@ export const PdfHighlighter = <T_HT extends IHighlight>({
     setTipPosition(highlight.position);
     setTipChildren(content);
   };
-
+  // @ts-ignore
   const renderTip = () => {
     if (!tipPosition) return null;
 
