@@ -79,7 +79,9 @@ export const PdfHighlighter = <T_HT extends IHighlight>({
   var roots: Map<Element, Root> = new Map();
 
   const handleScaleValue = () => {
-    viewer.currentScaleValue = pdfScaleValue;
+    if (viewer !== null && viewer !== undefined) {
+      viewer.currentScaleValue = pdfScaleValue;
+    }
   };
 
   const debouncedScaleValue = useCallback(debounce(handleScaleValue, 500), []);
